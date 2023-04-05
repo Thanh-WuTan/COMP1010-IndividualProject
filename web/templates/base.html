@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='reset.css') }}">
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        {% block csstyle %}{% endblock %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='base_style.css') }}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.css">
+        <title>{% block title %}Home{% endblock %}</title>
+    </head>
+    <body>
+        
+        
+        <nav id="navigation" class="unselectable nav-container navbar navbar-expand-lg navbar-light bg-white" >
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">
+                    <img class="logo" src="https://i.ibb.co/HhDfvd2/download-removebg-preview.png">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main_nav"  aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="main_nav">
+                    <ul class="navbar-nav">
+                            <li class="nav-item"> <a class="nav-link" href="/">Home </a> </li>
+                            <li class="nav-item"><a class="nav-link" href="/users"> Users </a> </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link  dropdown-toggle" href="#" data-bs-toggle="dropdown"> Equipments  </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ url_for('auth.list_of_equipments') }}"> List of equipments </a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('auth.equipments_overview') }}"> Overview </a></li>
+                                </ul>
+                            </li>
+                            {% if current_user.is_authenticated and current_user.access >= 3 %}
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="/equipments" data-bs-toggle="dropdown"> Admin </a>
+                                    <ul class="dropdown-menu">
+                                        <li> 
+                                            <a class="dropdown-item" href="{{ url_for('auth.user_role_change_request_list') }}"> 
+                                            Role change request 
+                                            {% if number_of_user_role_change_request > 0 %}
+                                                <div class="badge">
+                                                    <span class="badge-number">
+                                                        {{number_of_user_role_change_request}}
+                                                    </span>
+                                                </div>
+                                            {% endif %}
+                                            </a> 
+                                        </li>
+                                        <li> <a class="dropdown-item"  href="{{ url_for('auth.borrowing_request_list') }}"> Borrowing request </a> </li>
+                                    </ul>
+                                </li>
+                        {% endif %}
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        {% if current_user.is_authenticated %} 
+
+                        <li class="nav-item dropdown"> 
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">  
+                                Notifications
+                                <div class="bell-icon">
+                                    <i class="fa fa-bell"></i>
+                                    {% if unread != 0 %}
+                                        <span class="dot"></span>
+                                    {% endif %}
+                                </div>
+                            </a>
+                            <ul class="dropdown-menu notifications dropdown-menu-notifications" role="menu" aria-labelledby="dLabel">
+                                {% for noti in notifications %}
+                                <li onclick="mark_as_read{{loop.index}}()">
+                                    <div class="notifications-wrapper">
+                                        <a class="content" href="{{noti.noti_href}}">
+                                            <div class="notification-item">
+                                                <div style="display: flex;">
+
+                                                    <h4 class="item-title">{{noti.noti_title}}</h4>
+                                                    {% if noti.unread %}
+                                                    <p class="red-dot">&#128308;</p>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                <p class="item-info">{{ noti.noti_content }}</p>
+                                                <p class="item-date">{{ noti.noti_date }}</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <script>
+                                    function mark_as_read{{loop.index}}(){
+                                        fetch('/notifications/{{noti.id}}/read', { method: 'POST' })
+                                        .then(response => {
+                                          if (response.status === 204) {
+                                            console.log('Notification marked as read.');
+                                          } else {
+                                            console.error('Failed to mark notification as read.');
+                                          }
+                                        });
+                                    }
+                                </script>
+                                {% endfor %}
+
+                            </ul>
+                        </li>  
+                    <li class="nav-item"><a class="nav-link" href="/profile/{{current_user.user_name}}">{{current_user.user_name}}</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/logout">Log out</a></li>
+                        {% else %}
+                        <li class="nav-item"><a class="nav-link" href="/login">Log in</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/sign-up">Sign up</a></li>
+                        {% endif %}
+                    </ul>
+                </div> 
+            </div>
+        </nav>
+        
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %} 
+                {% if messages %}
+                    {% for category, message in messages %} 
+                        {% if category == 'error' %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% elif category == 'info' %}
+                            <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>  
+                        {% endif %} 
+                    {% endfor %} 
+                {% endif %} 
+            {% endwith %} 
+            {% block content %}
+                            
+            {% endblock %}
+            
+        </div>
+
+        <script>
+            Elements = document.getElementsByClassName("status-request");
+            for(let i = 0; i < Elements.length; i++){
+                let txt = Elements[i].id;
+                let request_id = txt.substring(15);
+                if (Elements[i].innerText == 'Active' || Elements[i].innerText == 'Checked out'){
+                    
+                }
+            }
+        </script>
+        
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    </body>
+</html>

@@ -1,0 +1,125 @@
+{% extends "base.html" %} 
+{% block title %}Request List{% endblock %}
+{% block csstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='borrowing_request_style.css') }}">
+{% endblock %}
+{% block content %} 
+    <div class="table-responsive-sm">
+        <div class="table-header">
+            <p style="font-size: 30px; margin-right: 1rem;">Borrowing requests</p>
+            <form action="" style="display: flex;">
+                <div class="search-box">
+                    <label for="search_by_username">Search by username</label>
+                    <input 
+                    name="search"
+                    type="text"
+                    class="form-control form-control-sm"
+                    value="{{search_by_username}}"
+                    >
+                </div>
+
+                <div class="search-box">
+                    <label for="status">Status</label>
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="{{search_by_status}}">{{search_by_status}}</option>
+                        {% if search_by_status != 'Pending' %}
+                        <option value="Pending">Pending</option>
+                        {% endif %}
+                        {% if search_by_status != 'Others' %}
+                        <option value="Others">Others</option>
+                        {% endif %}
+                    </select>
+                </div>
+                
+                <div class="search-box">
+                    <button type="submit" class="btn">
+                        <i class="fa fa-search"></i> 
+                        Search
+                    </button>
+                </div>
+                
+
+            </form>
+        </div>
+        <table id="request-list" class="table">
+            <thead>
+                <tr>
+                    <th scope="col">User</th>
+                    <th scope="col">Equipment</th>
+                    <th scope="col">Start date</th>
+                    <th scope="col">End date</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            {% for request in request_list %}
+            <tr id="request-{{loop.index}}" class="request-list-item list-item" onclick="navigate{{loop.index}}()">    
+                <td> <a href="/profile/{{request.user_name}}">{{request.user_name}}</a> </td>
+                <td> <a href="/equipments/details/{{request.equip_name}}">{{request.equip_name}}</a> </td>
+                <td>{{request.start_date}}</td>
+                <td>{{request.end_date}}</td>
+                
+                {% if request.status == 1%}
+                <td id="status-request-{{request.id}}" class="status-request status-pending">Pending</td>
+                {% elif request.status == 2 %}
+                <td id="status-request-{{request.id}}" class="status-request status-approved">Approved</td>
+                {% elif request.status == 3 %}
+                <td id="status-request-{{request.id}}" class="status-request status-rejected">Rejected</td>
+                {% elif request.status == 4 %}
+                <td id="status-request-{{request.id}}" class="status-request status-active">Active</td>
+                {% elif request.status == 5 %}
+                <td id="status-request-{{request.id}}" class="status-request status-checkedout">Checked out</td>
+                {% elif request.status == 6 %}
+                <td id="status-request-{{request.id}}" class="status-request status-overdue">Overdue</td>
+                {% elif request.status == 7 %}
+                <td id="status-request-{{request.id}}" class="status-request status-returned">Returned</td>
+                
+                {% endif %}
+                <td>
+                    <div style="display: flex; justify-content: start;">
+                        <form action="{{ url_for('auth.accept_borrowing_request', id=request.id) }}" method="POST">
+                            <input type="hidden" id="userChoice-{{loop.index}}" name="userChoice" value="empty">
+                            <button type="submit" id="btn-approve-{{loop.index}}" class="btn btn-success btn-circle fa fa-check" onclick="confirm_action{{loop.index}}()"></button>
+                        </form>
+                        <form class="reject-btn" action="{{ url_for('auth.reject_borrowing_request', id=request.id) }}" method="POST">
+                            <input type="hidden" id="userChoice2-{{loop.index}}" name="userChoice2" value="empty">
+                            <button type="submit" id="btn-reject-{{loop.index}}" class="btn btn-danger btn-circle fa fa-times" onclick="confirm_action2{{loop.index}}()"></button>
+                        </form>
+                        <script>
+                            function confirm_action{{loop.index}}(){
+                                if (confirm('Are you sure?') == true)
+                                document.getElementById("userChoice-{{loop.index}}").value = "True";
+                                else{
+                                    document.getElementById("userChoice-{{loop.index}}").value = "False"
+                                    return 0;
+                                }
+                            }   
+                            function confirm_action2{{loop.index}}(){
+                                if (confirm('Are you sure?') == true)
+                                document.getElementById("userChoice2-{{loop.index}}").value = "True";
+                                else{
+                                    document.getElementById("userChoice2-{{loop.index}}").value = "False"
+                                    return 0;
+                                }
+                            }   
+                        </script> 
+                    </div>
+                </td>
+            </tr>
+            <script>
+                function navigate{{loop.index}}(){
+                    window.location.href = '/view-request-form/{{request.id}}'
+                }
+            </script>
+            {% endfor %} 
+        </table>
+        {{ pagination.links }}
+        <script>
+            function post_request(){
+
+            }
+        </script>
+    </div>
+    
+
+{% endblock %}

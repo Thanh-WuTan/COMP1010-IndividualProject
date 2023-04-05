@@ -1,0 +1,69 @@
+{% extends "base.html" %} 
+{% block title %}View Request Form{% endblock %}
+{% block csstyle %}
+<link rel="stylesheet" href="{{ url_for('static', filename='view_request_form_style.css') }}">
+{% endblock %}
+{% block content %}        
+    <div class="roundbox">
+        
+        <div class="caption-title">
+            Borrowing request  
+        </div>
+
+        <div class="mb-3">
+            <span style="font-weight: 550;">User: </span>
+            <a href="/profile/{{request.user_name}}">{{ request.user_name }}</a>
+        </div>
+
+        <div class="mb-3">
+            <span style="font-weight: 550;">Equipment name: </span>
+            <a href="/equipments/details/{{request.equip_name}}">{{ request.equip_name }}</a>
+        </div>
+        
+        <div class="mb-3">
+            <span style="font-weight: 550">Start date:</span>
+            <span>{{ request.start_date }}</span>
+        </div>
+
+        <div class="mb-3">
+            <span style="font-weight: 550">End date:</span>
+            <span>{{ request.end_date }}</span>
+        </div>
+        
+        <div class="mb-4">
+            <span style="font-weight: 550">Status:</span>
+            <span>{{ REQUEST_STATUS[request.status] }}</span>
+        </div>
+        <!-- {% if current_user.is_authenticated and current_user.access >= 3 %}
+        <div style="display: flex; justify-content: center;">
+            <form action="{{ url_for('auth.accept_borrowing_request', id=request.id) }}" method="POST">
+                <input type="hidden" id="userChoice" name="userChoice" value="empty">
+                <button type="submit" id="btn-approve" class="btn btn-success btn-circle fa fa-check" onclick="confirm_action()"></button>
+            </form>
+            <form action="{{ url_for('auth.reject_borrowing_request', id=request.id) }}" method="POST">
+                <input type="hidden" id="userChoice2" name="userChoice2" value="empty">
+                <button type="submit" id="btn-reject" class="btn btn-danger btn-circle fa fa-times" onclick="confirm_action2()"></button>
+            </form>
+            <script>
+                function confirm_action(){
+                    if (confirm('Are you sure?') == true)
+                    document.getElementById("userChoice").value = "True";
+                    else{
+                        document.getElementById("userChoice").value = "False"
+                        return 0;
+                    }
+                }   
+                function confirm_action2(){
+                    if (confirm('Are you sure?') == true)
+                    document.getElementById("userChoice2").value = "True";
+                    else{
+                        document.getElementById("userChoice2").value = "False"
+                        return 0;
+                    }
+                }   
+            </script> 
+        </div>
+        {% endif %} -->
+    </div>
+{% endblock %}
+
