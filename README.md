@@ -1,5 +1,6 @@
 # My First Web Project
-I developed this project as part of my Introduction to Programming course at VinUniversity. Please note that this is my first attempt at web development, and the implementation may not be optimal since I'm still a beginner in this field.
+I developed this project as part of my Introduction to Programming course at VinUniversity. I implemented a CRUD (Create, Read, Update, Delete) application that demonstrates my beginner-level skills in both front-end and back-end development. 
+Please note that this is my first attempt at web development, and the implementation may not be optimal since I'm still a beginner in this field.
 
 # Description
 This project is a simple CRUD (Create, Read, Update, Delete) web application created using Flask and SQLite. It includes APIs for managing users, equipment, and handling borrowing/returning requests.
